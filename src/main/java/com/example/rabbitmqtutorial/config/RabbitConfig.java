@@ -11,10 +11,9 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class RabbitConfig {
 
-
     @Bean
-    public DirectExchange direct() {
-        return new DirectExchange("tut.direct");
+    public TopicExchange topic() {
+        return new TopicExchange("tut.topic");
     }
 
     @Profile("receiver")
@@ -31,23 +30,18 @@ public class RabbitConfig {
         }
 
         @Bean
-        public Binding binding1a(DirectExchange direct, Queue autoDeleteQueue1) {
-            return BindingBuilder.bind(autoDeleteQueue1).to(direct).with("orange");
+        public Binding binding1a(TopicExchange topic, Queue autoDeleteQueue1) {
+            return BindingBuilder.bind(autoDeleteQueue1).to(topic).with("*.orange.*");
         }
 
         @Bean
-        public Binding binding1b(DirectExchange direct, Queue autoDeleteQueue1) {
-            return BindingBuilder.bind(autoDeleteQueue1).to(direct).with("black");
+        public Binding binding1b(TopicExchange topic, Queue autoDeleteQueue1) {
+            return BindingBuilder.bind(autoDeleteQueue1).to(topic).with("*.*.rabbit");
         }
 
         @Bean
-        public Binding binding2a(DirectExchange direct, Queue autoDeleteQueue2) {
-            return BindingBuilder.bind(autoDeleteQueue2).to(direct).with("green");
-        }
-
-        @Bean
-        public Binding binding2b(DirectExchange direct, Queue autoDeleteQueue2) {
-            return BindingBuilder.bind(autoDeleteQueue2).to(direct).with("black");
+        public Binding binding2a(TopicExchange topic, Queue autoDeleteQueue2) {
+            return BindingBuilder.bind(autoDeleteQueue2).to(topic).with("lazy.#");
         }
 
         @Bean
@@ -59,7 +53,7 @@ public class RabbitConfig {
 
     @Profile("sender")
     @Bean
-    public RabbitMqSender sender(RabbitTemplate rabbitTemplate, DirectExchange exchange) {
+    public RabbitMqSender sender(RabbitTemplate rabbitTemplate, TopicExchange exchange) {
         return new RabbitMqSender(rabbitTemplate, exchange);
     }
 }
